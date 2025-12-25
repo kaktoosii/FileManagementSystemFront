@@ -1,0 +1,88 @@
+<div class="p-4">
+  <h2 class="text-lg font-bold mb-4">
+    مدیریت دسترسی‌های پویا برای کاربر
+    {{ securedActionsResponse()?.userClaims?.user?.username || 'ناشناس' }}
+  </h2>
+
+  @if (pending()) {
+    <div class="flex justify-center my-8">
+      <nz-spin nzSimple [nzSize]="'large'"></nz-spin>
+    </div>
+  } @else {
+    <nz-collapse accordion>
+      @for (controller of securedActionsResponse()?.dynamicallySecuredActions || []; track controller.controllerName) {
+        <nz-collapse-panel [nzHeader]="controllerHeader" [nzActive]="false" class="mb-2">
+          <ng-template #controllerHeader>
+            <div class="flex justify-between items-center w-full">
+              <div class="flex items-center">
+                <i
+                  class="mr-2"
+                  [ngClass]="{
+                    'text-green-500': allGranted(controller),
+                    'text-orange-400': partiallyGranted(controller),
+                    'text-gray-400': noneGranted(controller)
+                  }"
+                >●</i>
+                <span class="font-semibold text-base">
+                  {{ controller.controllerDisplayName || controller.controllerName }}
+                </span>
+              </div>
+
+              <div class="flex items-center space-x-2">
+                <small class="text-gray-500 mr-4">
+                  {{ countGranted(controller) }} از {{ controller.apiActions.length }} اعطا شده
+                </small>
+
+                <!-- دکمه های اعطا همه / لغو همه -->
+                <button nz-button nzType="default" nzSize="small" (click)="toggleAll(controller, true)">
+                  اعطا همه
+                </button>
+                <button nz-button nzType="default" nzSize="small" (click)="toggleAll(controller, false)">
+                  لغو همه
+                </button>
+              </div>
+            </div>
+          </ng-template>
+
+          <nz-table nzBordered nzSize="small" [nzData]="controller.apiActions" class="compact-table mt-2">
+            <thead>
+              <tr>
+                <th>اکشن</th>
+                <th>متدهای HTTP</th>
+                <th class="text-center">وضعیت</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let action of controller.apiActions">
+                <td>{{ action.actionDisplayName || action.actionName }}</td>
+                <td>{{ action.httpMethods.join('، ') }}</td>
+                <td class="text-center">
+                  <label
+                    nz-checkbox
+                    [ngModel]="isActionChecked(controller.controllerName, action)"
+                    (ngModelChange)="onClaimChange(controller.controllerName, action, $event)"
+                  >
+                    <span
+                      [ngClass]="{
+                        'text-green-600': isActionChecked(controller.controllerName, action),
+                        'text-gray-500': !isActionChecked(controller.controllerName, action)
+                      }"
+                    >
+                      {{ isActionChecked(controller.controllerName, action)
+                        ? 'اعطا شده'
+                        : 'اعطا نشده' }}
+                    </span>
+                  </label>
+                </td>
+              </tr>
+            </tbody>
+          </nz-table>
+        </nz-collapse-panel>
+      }
+
+      @if (!(securedActionsResponse()?.dynamicallySecuredActions?.length)) {
+        <nz-empty nzNotFoundContent="هیچ کنترلری یافت نشد"></nz-empty>
+      }
+    </nz-collapse>
+  }
+</div>

@@ -1,0 +1,52 @@
+<nz-card nzTitle="ویرایش پروفایل">
+  <form [formGroup]="form" (ngSubmit)="submit()">
+    <nz-form-item>
+      <nz-form-label [nzSpan]="6" nzFor="username">نام کاربری</nz-form-label>
+      <nz-form-control [nzSpan]="12">
+        <input nz-input formControlName="username" id="username" />
+      </nz-form-control>
+    </nz-form-item>
+
+    <nz-form-item>
+      <nz-form-label [nzSpan]="6" nzFor="displayName">نام</nz-form-label>
+      <nz-form-control [nzSpan]="12">
+        <input nz-input formControlName="displayName" id="displayName" />
+      </nz-form-control>
+    </nz-form-item>
+
+    <nz-form-item>
+      <nz-form-label [nzSpan]="6" nzFor="mobileNumber">موبایل</nz-form-label>
+      <nz-form-control [nzSpan]="12">
+        <input nz-input formControlName="mobileNumber" id="mobileNumber" />
+      </nz-form-control>
+    </nz-form-item>
+
+    <nz-form-item>
+      <nz-form-label [nzSpan]="6">تصویر پروفایل</nz-form-label>
+      <nz-form-control [nzSpan]="12">
+        <shop-image-upload
+          [pictureId]="profileImage.value"
+          (imageSelected)="form.get('profileImage')?.setValue($event)"
+        ></shop-image-upload>
+      </nz-form-control>
+    </nz-form-item>
+    <input
+      #profileImage
+      type="text"
+      class="hidden"
+      formControlName="profileImage"
+      id="profileImage"
+    />
+    <nz-form-item>
+      <nz-form-control [nzSpan]="24">
+        <button
+          nz-button
+          nzType="primary"
+          [disabled]="form.invalid || isLoading()"
+        >
+          ذخیره
+        </button>
+      </nz-form-control>
+    </nz-form-item>
+  </form>
+</nz-card>

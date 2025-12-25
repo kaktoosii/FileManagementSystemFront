@@ -1,0 +1,91 @@
+<nz-card>
+  <div class="mb-4">
+    <button nz-button nzType="default" (click)="goBack()">
+      <nz-icon nzType="arrow-left" nzTheme="outline"></nz-icon>
+      بازگشت
+    </button>
+  </div>
+
+  <form
+    nz-form
+    [formGroup]="userForm"
+    (ngSubmit)="onSubmit()"
+    class="h-fit flex flex-col"
+  >
+    <nz-form-item>
+      <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired nzFor="username">نام کاربری</nz-form-label>
+      <nz-form-control [nzSm]="14" [nzXs]="24" nzErrorTip="نام کاربری اجباری است و باید حداقل 3 کاراکتر باشد">
+        <nz-input-group nzPrefixIcon="user">
+          <input nz-input formControlName="username" id="username" placeholder="نام کاربری را وارد کنید" />
+        </nz-input-group>
+      </nz-form-control>
+    </nz-form-item>
+
+    <nz-form-item *ngIf="!isEditMode">
+      <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired nzFor="password">کلمه عبور</nz-form-label>
+      <nz-form-control [nzSm]="14" [nzXs]="24" nzErrorTip="کلمه عبور اجباری است و باید حداقل 6 کاراکتر باشد">
+        <nz-input-group nzPrefixIcon="lock">
+          <input nz-input type="password" formControlName="password" id="password" placeholder="کلمه عبور را وارد کنید" />
+        </nz-input-group>
+      </nz-form-control>
+    </nz-form-item>
+
+    <nz-form-item>
+      <nz-form-label [nzSm]="6" [nzXs]="24" nzFor="firstName">نام</nz-form-label>
+      <nz-form-control [nzSm]="14" [nzXs]="24">
+        <nz-input-group nzPrefixIcon="idcard">
+          <input nz-input formControlName="firstName" id="firstName" placeholder="نام را وارد کنید" />
+        </nz-input-group>
+      </nz-form-control>
+    </nz-form-item>
+
+    <nz-form-item>
+      <nz-form-label [nzSm]="6" [nzXs]="24" nzFor="lastName">نام خانوادگی</nz-form-label>
+      <nz-form-control [nzSm]="14" [nzXs]="24">
+        <nz-input-group nzPrefixIcon="idcard">
+          <input nz-input formControlName="lastName" id="lastName" placeholder="نام خانوادگی را وارد کنید" />
+        </nz-input-group>
+      </nz-form-control>
+    </nz-form-item>
+
+    <nz-form-item>
+      <nz-form-label [nzSm]="6" [nzXs]="24" nzFor="mobileNumber">شماره تماس</nz-form-label>
+      <nz-form-control [nzSm]="14" [nzXs]="24" nzErrorTip="شماره تماس باید حداقل 10 رقم باشد">
+        <nz-input-group nzPrefixIcon="phone">
+          <input nz-input formControlName="mobileNumber" id="mobileNumber" placeholder="شماره تماس را وارد کنید" />
+        </nz-input-group>
+      </nz-form-control>
+    </nz-form-item>
+
+    <nz-form-item>
+      <nz-form-label [nzSm]="6" [nzXs]="24" nzFor="isCheckDistance">بررسی فاصله</nz-form-label>
+      <nz-form-control [nzSm]="14" [nzXs]="24">
+        <nz-select formControlName="isCheckDistance" nzPlaceHolder="انتخاب کنید" id="isCheckDistance">
+          <nz-option nzLabel="بله" [nzValue]="true"></nz-option>
+          <nz-option nzLabel="خیر" [nzValue]="false"></nz-option>
+        </nz-select>
+      </nz-form-control>
+    </nz-form-item>
+
+    <nz-form-item>
+      <nz-form-label [nzSm]="6" [nzXs]="24" nzFor="distance">فاصله</nz-form-label>
+      <nz-form-control [nzSm]="14" [nzXs]="24" nzErrorTip="لطفاً فاصله را وارد کنید">
+        <input nz-input formControlName="distance" id="distance" type="number" placeholder="فاصله را وارد کنید" />
+      </nz-form-control>
+    </nz-form-item>
+
+    <nz-form-item>
+      <nz-form-label [nzSm]="6" [nzXs]="24" nzFor="deviceId">کد دستگاه</nz-form-label>
+      <nz-form-control [nzSm]="14" [nzXs]="24" nzErrorTip="کد یکتای دستگاه را وارد کنید">
+        <input nz-input formControlName="deviceId" id="deviceId" type="text" placeholder="کد یکتای دستگاه را وارد کنید" />
+      </nz-form-control>
+    </nz-form-item>
+    <button
+      type="submit"
+      [disabled]="isSubmitting || userForm.invalid"
+      class="btn btn-primary mt-4 rounded px-4 cursor-pointer font-bold py-2 mb-3"
+    >
+      {{ isEditMode ? 'ویرایش کاربر' : 'ثبت کاربر' }}
+    </button>
+  </form>
+</nz-card>

@@ -1,0 +1,18 @@
+/* src/app/report-viewer/report-viewer.component.scss */
+#viewer {
+  border: 1px solid #ccc;
+}
+
+button {
+  margin: 0.5rem;
+  padding: 0.5rem;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}

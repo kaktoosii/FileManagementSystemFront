@@ -1,0 +1,40 @@
+<nz-table
+  #basicTable
+  [nzData]="supportRequests()"
+  class="p-2"
+  [nzLoading]="pending()"
+  [nzPageSize]="pageSize()"
+  [nzPageIndex]="pageIndex()"
+  [nzTotal]="totalNumber()"
+>
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>فرستنده</th>
+      <th>موضوع</th>
+      <th>وضعیت</th>
+      <th>تاریخ ایجاد</th>
+      <th>عملیات</th>
+    </tr>
+  </thead>
+  <tbody>
+    @for (data of basicTable.data; track data) {
+    <tr>
+      <td>{{ data.id }}</td>
+      <td>{{ data.customerName }}</td>
+      <td>{{ data.subject }}</td>
+      <td>{{ data.status }}</td>
+      <td>{{ data.createDatePersian }}</td>
+      <td>
+        <button
+          nz-button
+          nzType="link"
+          [routerLink]="['/dashboard/support', data.id]"
+        >
+          مشاهده
+        </button>
+      </td>
+    </tr>
+    }
+  </tbody>
+</nz-table>

@@ -1,0 +1,54 @@
+<div class="flex justify-end px-4 py-2">
+  <button nz-button nzType="primary" (click)="isNewSliderVisible.set(true)">
+    افزودن
+  </button>
+</div>
+<nz-table
+  #basicTable
+  [nzData]="sliders()"
+  class="p-2"
+  [nzLoading]="pending()"
+  (nzPageSizeChange)="onPageSizeChange($event)"
+  [nzPageSize]="pageSize()"
+  [nzPageIndex]="pageIndex()"
+  [nzTotal]="totalNumber()"
+>
+  <thead>
+    <tr>
+      <th></th>
+      <th>عنوان</th>
+      <th>کد</th>
+      <th>شناسه ایجادکننده</th>
+    </tr>
+  </thead>
+  <tbody>
+    @for (data of basicTable.data; track data) {
+    <tr
+      (click)="selected.set(data)"
+      [class.selected]="data.id == selected()?.id"
+    >
+      <td>{{ data.id }}</td>
+      <td>{{ data.title }}</td>
+      <td>{{ data.showCode }}</td>
+      <td>{{ data.publisherUserId }}</td>
+    </tr>
+    }
+  </tbody>
+</nz-table>
+
+<nz-modal
+  [nzFooter]="null"
+  [nzVisible]="isNewSliderVisible()"
+  (nzVisibleChange)="isNewSliderVisible.set($event)"
+  (nzOnCancel)="isNewSliderVisible.set(false)"
+>
+  <ng-container *nzModalContent>
+    <shop-new-slider
+      (close)="isNewSliderVisible.set(false); GetList()"
+    ></shop-new-slider>
+  </ng-container>
+</nz-modal>
+
+@if (selected()) {
+<shop-slides [sliderId]="selected()!.id!"></shop-slides>
+}

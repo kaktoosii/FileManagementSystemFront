@@ -1,0 +1,128 @@
+<nz-card nzTitle="تننظیمات سایت">
+  <form [formGroup]="form" (ngSubmit)="submit()">
+    <nz-form-item>
+      <nz-form-label [nzSpan]="6" nzFor="title">عنوان سایت</nz-form-label>
+      <nz-form-control [nzSpan]="12">
+        <input nz-input formControlName="title" id="title" />
+      </nz-form-control>
+    </nz-form-item>
+
+    <nz-form-item>
+      <nz-form-label [nzSpan]="6" nzFor="description">توضیحات</nz-form-label>
+      <nz-form-control [nzSpan]="12">
+        <input nz-input formControlName="description" id="description" />
+      </nz-form-control>
+    </nz-form-item>
+
+    <nz-form-item>
+      <nz-form-label [nzSpan]="6" nzFor="meta">متا تگ</nz-form-label>
+      <nz-form-control [nzSpan]="12">
+        <input nz-input formControlName="meta" id="meta" />
+      </nz-form-control>
+    </nz-form-item>
+
+    <nz-form-item>
+      <nz-form-label [nzSpan]="6" nzFor="telegram">تلگرام</nz-form-label>
+      <nz-form-control [nzSpan]="12">
+        <input nz-input formControlName="telegram" id="telegram" />
+      </nz-form-control>
+    </nz-form-item>
+
+    <nz-form-item>
+      <nz-form-label [nzSpan]="6" nzFor="instagram">اینستاگرام</nz-form-label>
+      <nz-form-control [nzSpan]="12">
+        <input nz-input formControlName="instagram" id="instagram" />
+      </nz-form-control>
+    </nz-form-item>
+
+    <nz-form-item>
+      <nz-form-label [nzSpan]="6" nzFor="linkedIn">LinkedIn</nz-form-label>
+      <nz-form-control [nzSpan]="12">
+        <input nz-input formControlName="linkedIn" id="linkedIn" />
+      </nz-form-control>
+    </nz-form-item>
+
+    <hr class="mb-4" />
+    <nz-form-item>
+      <nz-form-label [nzSpan]="6" nzFor="fcmServerKey"
+        >fcmServerKey</nz-form-label
+      >
+      <nz-form-control [nzSpan]="12">
+        <input nz-input formControlName="fcmServerKey" id="fcmServerKey" />
+      </nz-form-control>
+    </nz-form-item>
+
+    <nz-form-item>
+      <nz-form-label [nzSpan]="6" nzFor="fcmSenderId"
+        >fcmSenderId</nz-form-label
+      >
+      <nz-form-control [nzSpan]="12">
+        <input nz-input formControlName="fcmSenderId" id="fcmSenderId" />
+      </nz-form-control>
+    </nz-form-item>
+
+    <hr class="mb-4" />
+
+    <nz-form-item>
+      <nz-form-label [nzSpan]="6" nzFor="phone">تلفن</nz-form-label>
+      <nz-form-control [nzSpan]="12">
+        <input nz-input formControlName="phone" id="phone" />
+      </nz-form-control>
+    </nz-form-item>
+
+    <nz-form-item>
+      <nz-form-label [nzSpan]="6" nzFor="copyRight">copyRight</nz-form-label>
+      <nz-form-control [nzSpan]="12">
+        <input nz-input formControlName="copyRight" id="copyRight" />
+      </nz-form-control>
+    </nz-form-item>
+    <!-- About Us (TinyMCE) -->
+    <nz-form-item>
+      <nz-form-label [nzSpan]="6" nzFor="aboutUs">متن درباره ما</nz-form-label>
+      <nz-form-control [nzSpan]="12">
+        <editor
+          [apiKey]="editorApiKey"
+          formControlName="aboutUs"
+          [init]="tinyMceConfig"
+        ></editor>
+      </nz-form-control>
+    </nz-form-item>
+
+    <!-- Rules (TinyMCE) -->
+    <nz-form-item>
+      <nz-form-label [nzSpan]="6" nzFor="rules">قوانین</nz-form-label>
+      <nz-form-control [nzSpan]="12">
+        <editor
+          [apiKey]="editorApiKey"
+          formControlName="rules"
+          [init]="tinyMceConfig"
+        ></editor>
+      </nz-form-control>
+    </nz-form-item>
+    <!-- Questions (TinyMCE) -->
+    <nz-form-item>
+      <nz-form-label [nzSpan]="6" nzFor="questions"
+        >سوالات متداول</nz-form-label
+      >
+      <nz-form-control [nzSpan]="12">
+        <editor
+          [apiKey]="editorApiKey"
+          formControlName="questions"
+          [init]="tinyMceConfig"
+        ></editor>
+      </nz-form-control>
+    </nz-form-item>
+
+    <nz-form-item>
+      <nz-form-control [nzSpan]="24">
+        <button
+          nz-button
+          nzType="primary"
+          [disabled]="form.invalid || isLoading()"
+        >
+          Save
+        </button>
+      </nz-form-control>
+    </nz-form-item>
+  </form>
+</nz-card>

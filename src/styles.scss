@@ -1,0 +1,22 @@
+/* You can add global styles to this file, and also import other style files */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import "./../public/fonts/font.css";
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Yekan;
+}
+
+  ng-persian-datepicker .datepicker-outer-container {
+    position: absolute;
+    z-index: 1;
+    top: calc(var(--input-height) + var(--input-vertical-margin));
+    right: 0;
+    left: 0;
+  }
+

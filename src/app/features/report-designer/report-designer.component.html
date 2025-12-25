@@ -1,0 +1,8 @@
+<div dir="ltr">
+  <h2>Report Designer</h2>
+  <select (change)="loadReport($event)" [disabled]="!reports.length">
+    <option value="" selected disabled>Select a report</option>
+    <option *ngFor="let report of reports" [value]="report.id">{{ report.title }} ({{ report.code }})</option>
+  </select>
+  <div id="designer" style="width: 100%; height: 800px;"></div>
+</div>

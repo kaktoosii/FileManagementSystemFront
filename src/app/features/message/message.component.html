@@ -1,0 +1,49 @@
+<nz-card>
+  <div class="mb-3">
+    <button
+      nz-button
+      nzType="primary"
+      [routerLink]="['/dashboard/messages/add']"
+    >
+      افزودن پیام جدید
+    </button>
+  </div>
+
+  <nz-table
+    #basicTable
+    [nzData]="messages"
+    [nzBordered]="true"
+    [nzLoading]="isLoading"
+    [nzPageSize]="pageSize()"
+    [nzPageIndex]="pageIndex()"
+    [nzTotal]="totalNumber()"
+  >
+    <thead>
+      <tr>
+        <th nzWidth="20%">عنوان</th>
+        <th nzWidth="50%">توضیحات</th>
+        <th nzWidth="10%">نام کاربر</th>
+        <th nzWidth="10%">تاریخ ارسال</th>
+        <th nzWidth="10%">عملیات</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let message of messages">
+        <td>{{ message.subject }}</td>
+        <td>{{ message.description }}</td>
+        <td>{{ message.userName }}</td>
+        <td>{{ message.createDate }}</td>
+        <td>
+          <button class="px-2">
+            <nz-icon
+              class="text-red-500"
+              nzType="delete"
+              nzTheme="outline"
+              (click)="deleteMessage(message.id ?? 0)"
+            ></nz-icon>
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </nz-table>
+</nz-card>

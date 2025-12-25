@@ -1,0 +1,104 @@
+<nz-layout>
+  <nz-sider nzCollapsible [(nzCollapsed)]="isCollapsed" [nzTrigger]="null">
+    <div class="logo">آب منطقه ای زنجان</div>
+    <ul nz-menu nzTheme="dark" nzMode="inline">
+      <li nz-menu-item *ngIf="hasPermission('./home')" [routerLink]="['./home']" routerLinkActive="active">
+        <nz-icon nzType="home"></nz-icon>
+        <span>خانه</span>
+      </li>
+      <li nz-menu-item *ngIf="hasPermission('./users')" [routerLink]="['./users']" routerLinkActive="active">
+        <nz-icon nzType="user"></nz-icon>
+        <span>کاربران</span>
+      </li>
+       <li nz-menu-item *ngIf="hasPermission('./wells')" [routerLink]="['./wells']" routerLinkActive="active">
+        <nz-icon nzType="user"></nz-icon>
+        <span>اطلاعات دریافتی </span>
+      </li>
+
+      <li nz-menu-item *ngIf="hasPermission('./setting')" [routerLink]="['./setting']" routerLinkActive="active">
+        <nz-icon nzType="setting"></nz-icon>
+        <span>تنظیمات</span>
+      </li>
+      <li nz-menu-item *ngIf="hasPermission('./import')" [routerLink]="['./import']" routerLinkActive="active">
+        <nz-icon nzType="setting"></nz-icon>
+        <span>وارد کردن پروانه ها</span>
+      </li>
+      <li nz-menu-item *ngIf="hasPermission('./licenses')" [routerLink]="['./licenses']" routerLinkActive="active">
+        <nz-icon nzType="setting"></nz-icon>
+        <span>پروانه ها</span>
+      </li>
+      <li nz-menu-item *ngIf="hasPermission('./approval-levels')" [routerLink]="['./approval-levels']" routerLinkActive="active">
+        <nz-icon nzType="approval-levels"></nz-icon>
+        <span>سطوح تأیید</span>
+      </li>
+      <li nz-menu-item *ngIf="hasPermission('./support')" [routerLink]="['./support']" routerLinkActive="active">
+        <nz-icon nzType="customer-service"></nz-icon>
+        <span>پشتیبانی</span>
+      </li>
+      <li nz-menu-item *ngIf="hasPermission('./appliccation-version')" [routerLink]="['./appliccation-version']" routerLinkActive="active">
+        <nz-icon nzType="shopping-cart"></nz-icon>
+        <span>مدیریت ورژن‌ها</span>
+      </li>
+      <li nz-menu-item *ngIf="hasPermission('./messages')" [routerLink]="['./messages']" routerLinkActive="active">
+        <nz-icon nzType="message"></nz-icon>
+        <span>ارسال پیام</span>
+      </li>
+    </ul>
+  </nz-sider>
+  <nz-layout>
+    <nz-header class="header-container">
+      <ul class="flex items-center">
+        <!-- Sidebar Toggle Button (Pushes everything to the right) -->
+        <span
+          class="trigger ml-auto text-gray-600 rounded-md cursor-pointer"
+          nz-icon
+          [nzType]="isCollapsed ? 'menu-fold' : 'menu-unfold'"
+          (click)="isCollapsed = !isCollapsed"
+        ></span>
+
+        <!-- Search Icon -->
+        <span class="text-gray-600 rounded-md px-2 mt-2">
+          <nz-icon nzType="search" nzTheme="outline" class="text-2xl"></nz-icon>
+        </span>
+
+        <!-- Notifications Icon -->
+        <span class="text-gray-600 rounded-md px-2 mt-2">
+          <nz-icon nzType="bell" nzTheme="outline" class="text-2xl"></nz-icon>
+        </span>
+
+        <!-- Profile Menu -->
+        <a nz-dropdown nzTrigger="click" [nzDropdownMenu]="menu">
+          <img
+            [src]="profileImage | imageURLResolver"
+            alt="avatar.jpg"
+            class="
+              size-11
+              rounded-full
+              mx-2
+              ml-4
+              border-2 border-solid border-gray-400
+            "
+          />
+        </a>
+
+        <nz-dropdown-menu #menu="nzDropdownMenu">
+          <ul nz-menu>
+            <li nz-menu-item [routerLink]="['./profile']">ویرایش پروفایل</li>
+            <li nz-menu-item [routerLink]="['./change-password']">
+              تغییر رمز عبور
+            </li>
+            <li nz-menu-divider></li>
+            <li nz-menu-item (click)="logout()">خروج</li>
+          </ul>
+        </nz-dropdown-menu>
+      </ul>
+    </nz-header>
+
+    <nz-content>
+      <div class="inner-content">
+        <router-outlet></router-outlet>
+      </div>
+    </nz-content>
+    <nz-footer>znrw ©2025</nz-footer>
+  </nz-layout>
+</nz-layout>

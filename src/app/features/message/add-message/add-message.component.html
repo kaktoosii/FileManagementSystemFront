@@ -1,0 +1,30 @@
+<nz-card nzTitle="ارسال پیام">
+  <form [formGroup]="form" (ngSubmit)="submit()">
+    <nz-form-item>
+      <nz-form-label nzSpan="3">عنوان</nz-form-label>
+      <nz-form-control nzSpan="12">
+        <input nz-input formControlName="subject" />
+      </nz-form-control>
+    </nz-form-item>
+
+    <nz-form-item>
+      <nz-form-label nzSpan="3">توضیحات</nz-form-label>
+      <nz-form-control nzSpan="12">
+        <textarea nz-input formControlName="description"></textarea>
+      </nz-form-control>
+    </nz-form-item>
+
+    <button nz-button nzType="primary" [disabled]="form.invalid">
+      ارسال پیام
+    </button>
+    <button
+      nz-button
+      type="button"
+      nzType="default"
+      class="mx-2"
+      (click)="goBack()"
+    >
+      بازگشت
+    </button>
+  </form>
+</nz-card>

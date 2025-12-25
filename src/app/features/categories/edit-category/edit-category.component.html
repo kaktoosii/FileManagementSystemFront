@@ -1,0 +1,52 @@
+<form
+  nz-form
+  [formGroup]="form"
+  (ngSubmit)="submit()"
+  class="h-fit flex flex-col"
+>
+  <nz-form-item>
+    <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired nzFor="title"
+      >عنوان
+    </nz-form-label>
+    <nz-form-control [nzSm]="14" [nzXs]="24" nzErrorTip="عنوان را وارد کنید">
+      <input nz-input formControlName="title" id="title" />
+    </nz-form-control>
+  </nz-form-item>
+  <nz-form-item>
+    <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired nzFor="showCode"
+      >کد</nz-form-label
+    >
+    <nz-form-control [nzSm]="14" [nzXs]="24" nzErrorTip="کد را وارد کنید">
+      <input nz-input formControlName="showCode" id="showCode" />
+    </nz-form-control>
+  </nz-form-item>
+  <nz-form-item>
+    <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired nzFor="documentId"
+      >ایکون</nz-form-label
+    >
+    <div class="custom-upload-wrapper">
+      <nz-upload
+        [nzAction]="uploadUrl"
+        nzListType="picture-card"
+        [nzFileList]="fileList"
+        nzName="document"
+        (nzChange)="handleUpload($event)"
+        [nzShowUploadList]="{ showPreviewIcon: true, showRemoveIcon: true }"
+        class="custom-upload"
+      >
+        <div class="upload-button">
+          <i nz-icon nzType="plus"></i>
+          <div>آپلود</div>
+        </div>
+      </nz-upload>
+    </div>
+  </nz-form-item>
+  <button
+    type="submit"
+    [disabled]="!form.dirty || form.invalid"
+    class="btn btn-primary mt-4 rounded px-4 cursor-pointer font-bold py-2 mb-3"
+    nz-button
+  >
+    <ng-container>ویرایش دسته بندی</ng-container>
+  </button>
+</form>

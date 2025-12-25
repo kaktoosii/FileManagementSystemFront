@@ -1,0 +1,26 @@
+.custom-upload-wrapper {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap; /* Ensures wrapping if too many images */
+  gap: 12px; /* Adjust spacing between upload button and preview items */
+}
+
+.custom-upload {
+  display: flex !important;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.upload-button {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  width: 104px; /* Match size of picture-card previews */
+  height: 104px;
+  border: 1px dashed #d9d9d9;
+  background: #fafafa;
+  text-align: center;
+}

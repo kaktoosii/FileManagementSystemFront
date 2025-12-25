@@ -1,0 +1,31 @@
+<nz-card *ngIf="supportRequest()" class="mt-4">
+  <h3>جزئیات درخواست</h3>
+  <p><strong>موضوع:</strong> {{ supportRequest()!.subject }}</p>
+  <p><strong>فرستنده:</strong> {{ supportRequest()!.customerName }}</p>
+  <p><strong>پیام:</strong> {{ supportRequest()!.message }}</p>
+  <p><strong>وضعیت:</strong> {{ supportRequest()!.status }}</p>
+  <p>
+    <strong>تاریخ:</strong>
+    {{ supportRequest()!.createDatePersian }}
+  </p>
+  <hr class="my-3" />
+  <h4>پاسخ:</h4>
+  <p *ngIf="supportRequest()!.response">
+    {{ supportRequest()!.response.responseMessage }}
+  </p>
+  <p *ngIf="!supportRequest()!.response">پاسخی ارسال نشده است</p>
+
+  <div *ngIf="isAdmin() && !supportRequest()!.response">
+    <textarea
+      [(ngModel)]="responseMessage"
+      placeholder="پاسخ خود را بنویسید"
+      class="w-full p-2 border rounded"
+    ></textarea>
+    <button nz-button nzType="primary" (click)="sendResponse()">
+      ارسال پاسخ
+    </button>
+    <button nz-button nzType="default" class="mx-2" (click)="goBack()">
+      بازگشت
+    </button>
+  </div>
+</nz-card>

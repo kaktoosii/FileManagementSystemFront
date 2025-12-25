@@ -1,0 +1,93 @@
+<form
+  nz-form
+  [formGroup]="form"
+  (ngSubmit)="submit()"
+  class="h-fit flex flex-col"
+>
+  <nz-form-item>
+    <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired nzFor="title"
+      >عنوان</nz-form-label
+    >
+    <nz-form-control [nzSm]="14" [nzXs]="24" nzErrorTip="عنوان را وارد کنید">
+      <input nz-input formControlName="title" id="title" />
+    </nz-form-control>
+  </nz-form-item>
+  <nz-form-item>
+    <nz-form-label [nzSm]="6" [nzXs]="24" nzFor="description"
+      >شرح</nz-form-label
+    >
+    <nz-form-control [nzSm]="14" [nzXs]="24" nzErrorTip="شرح را وارد کنید">
+      <input nz-input formControlName="description" id="description" />
+    </nz-form-control>
+  </nz-form-item>
+  <nz-form-item>
+    <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired nzFor="link"
+      >لینک</nz-form-label
+    >
+    <nz-form-control [nzSm]="14" [nzXs]="24" nzErrorTip="لینک را وارد کنید">
+      <input nz-input formControlName="link" id="link" />
+    </nz-form-control>
+  </nz-form-item>
+  <nz-form-item>
+    <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired nzFor="showStartDate"
+      >زمان شروع</nz-form-label
+    >
+    <nz-form-control
+      [nzSm]="14"
+      [nzXs]="24"
+      nzErrorTip="زمان شروع را انتخاب کنید"
+    >
+      <ng-persian-datepicker
+        (dateOnSelect)="form.get('showStartDate')?.setValue($event.gregorian)"
+      >
+        <input nz-input [formControl]="showStartDate" id="showStartDate" />
+      </ng-persian-datepicker>
+    </nz-form-control>
+  </nz-form-item>
+  <nz-form-item>
+    <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired nzFor="endDate"
+      >زمان پایان</nz-form-label
+    >
+    <nz-form-control
+      [nzSm]="14"
+      [nzXs]="24"
+      nzErrorTip="زمان پایان را انتخاب کنید"
+    >
+      <ng-persian-datepicker
+        (dateOnSelect)="form.get('endDate')?.setValue($event.gregorian)"
+      >
+        <input nz-input [formControl]="endDate" id="endDate" />
+      </ng-persian-datepicker>
+    </nz-form-control>
+  </nz-form-item>
+  <nz-form-item>
+    <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired nzFor="pictureId">
+      تصویر</nz-form-label
+    >
+    <shop-image-upload
+      (imageSelected)="form.get('pictureId')?.setValue($event)"
+    ></shop-image-upload>
+    <input
+      #pictureId
+      type="text"
+      class="hidden"
+      formControlName="pictureId"
+      id="pictureId"
+    />
+  </nz-form-item>
+  <nz-form-item>
+    <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired nzFor="priority"
+      >اولویت</nz-form-label
+    >
+    <nz-form-control [nzSm]="14" [nzXs]="24" nzErrorTip="اولویت را مشخص کنید">
+      <input nz-input formControlName="priority" id="priority" />
+    </nz-form-control>
+  </nz-form-item>
+  <button
+    type="submit"
+    [disabled]="!form.dirty || form.invalid"
+    class="btn btn-primary mt-4 rounded px-4 cursor-pointer font-bold py-2 mb-3"
+  >
+    <ng-container>تعریف اسلایدر</ng-container>
+  </button>
+</form>

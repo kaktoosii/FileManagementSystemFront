@@ -1,0 +1,85 @@
+<div class="flex justify-end px-4 py-2">
+  <button
+    nz-button
+    nzType="primary"
+    (click)="isNewScheduleVisible.set(true); selectedNode.set(undefined)"
+  >
+    افزودن
+  </button>
+</div>
+<nz-table #expandTable [nzData]="listOfMapData" nzTableLayout="fixed">
+  <thead>
+    <tr>
+      <th>عنوان</th>
+      <th>کد نمایشی</th>
+      <th>تصویر</th>
+      <th>عملیات</th>
+    </tr>
+  </thead>
+  <tbody>
+    @for (data of expandTable.data; track data) { @for (item of
+    mapOfExpandedData[data.id]; track item) { @if ((item.parent &&
+    item.parent.expand) || !item.parent) {
+    <tr>
+      <td
+        [nzIndentSize]="item.level! * 20"
+        [nzShowExpand]="!!item.children"
+        [(nzExpand)]="item.expand"
+        (nzExpandChange)="collapse(mapOfExpandedData[data.id], item, $event)"
+      >
+        {{ item.title }}
+      </td>
+      <td>{{ item.showCode }}</td>
+      <td>
+        <img width="50" [src]="item.documentId | imageURLResolver" alt="" />
+      </td>
+      <td>
+        <button class="px-2" (click)="addSubNode(item)">
+          <nz-icon nzType="plus-circle" nzTheme="outline"></nz-icon>
+        </button>
+        <button class="px-2" (click)="editNode(item)">
+          <nz-icon nzType="edit" nzTheme="outline"></nz-icon>
+        </button>
+        <button class="px-2" (click)="deleteNode(item.id!)">
+          <nz-icon
+            class="text-red-500"
+            nzType="delete"
+            nzTheme="outline"
+          ></nz-icon>
+        </button>
+      </td>
+    </tr>
+    } } }
+  </tbody>
+</nz-table>
+
+<nz-modal
+  [nzFooter]="null"
+  [nzVisible]="isNewScheduleVisible()"
+  (nzVisibleChange)="isNewScheduleVisible.set($event)"
+  (nzOnCancel)="isNewScheduleVisible.set(false); selectedNode.set(undefined)"
+>
+  <ng-container *nzModalContent>
+    <shop-new-sub-category
+      [categoryId]="selectedNode()?.id!"
+      (close)="
+        isNewScheduleVisible.set(false); getTree(); selectedNode.set(undefined)
+      "
+    ></shop-new-sub-category>
+  </ng-container>
+</nz-modal>
+<nz-modal
+  [nzFooter]="null"
+  [nzVisible]="isEditScheduleVisible()"
+  (nzVisibleChange)="isEditScheduleVisible.set($event)"
+  (nzOnCancel)="isEditScheduleVisible.set(false); selectedNode.set(undefined)"
+>
+  <ng-container *nzModalContent>
+    <shop-edit-category
+      [category]="mapTreeNodeToCategoryDto(selectedNode()!)"
+      (close)="
+        isEditScheduleVisible.set(false); getTree(); selectedNode.set(undefined)
+      "
+    ></shop-edit-category>
+  </ng-container>
+</nz-modal>
