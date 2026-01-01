@@ -89,6 +89,16 @@ export const routes: Routes = [
           await import("./features/home/home.component"),
       },
       {
+        path: "files",
+        loadComponent: async () =>
+          await import("./features/files/file-management.component"),
+      },
+      {
+        path: "files/upload",
+        loadComponent: async () =>
+          await import("./features/files/upload-file.component"),
+      },
+      {
         path: "**",
         redirectTo: "/home",
         pathMatch: "full",

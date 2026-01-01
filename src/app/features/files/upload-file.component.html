@@ -1,0 +1,268 @@
+<div class="upload-container p-6">
+  <h2 class="text-2xl font-bold mb-6">آپلود فایل</h2>
+
+  <form [formGroup]="uploadForm" class="space-y-6">
+    <nz-card nzTitle="انتخاب پوشه" class="mb-4">
+      <nz-form-item>
+        <nz-form-label nzRequired>پوشه مقصد</nz-form-label>
+        <nz-form-control>
+          <nz-select
+            formControlName="folderId"
+            nzPlaceHolder="پوشه را انتخاب کنید"
+            nzAllowClear
+            (ngModelChange)="onFolderChange($event)"
+            [ngModel]="selectedFolderId()"
+          >
+            @for (folder of folders(); track folder.id) {
+              <nz-option [nzValue]="folder.id" [nzLabel]="folder.name"></nz-option>
+            }
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+    </nz-card>
+
+    <nz-card nzTitle="انتخاب فایل" class="mb-4">
+      <nz-form-item>
+        <nz-form-label nzRequired>فایل</nz-form-label>
+        <nz-form-control>
+          <input
+            id="fileInput"
+            type="file"
+            class="w-full p-2 border rounded"
+            (change)="onFileSelected($event)"
+            accept="*/*"
+          />
+          @if (selectedFile()) {
+            <div class="mt-2 text-sm text-gray-600">
+              فایل انتخاب شده: {{ selectedFile()!.name }}
+              ({{ formatFileSize(selectedFile()!.size) }})
+            </div>
+          }
+        </nz-form-control>
+      </nz-form-item>
+
+      @if (previewUrl() && previewType() === 'image') {
+        <div class="mt-4">
+          <h3 class="text-lg font-semibold mb-2">پیش‌نمایش تصویر</h3>
+          <div class="preview-container">
+            <img [src]="previewUrl()!" alt="Preview" class="preview-image" />
+          </div>
+        </div>
+      }
+
+      @if (previewUrl() && previewType() === 'pdf') {
+        <div class="mt-4">
+          <h3 class="text-lg font-semibold mb-2">پیش‌نمایش PDF</h3>
+          <div class="preview-container">
+            <iframe [src]="previewUrl()!" class="preview-pdf" frameborder="0"></iframe>
+          </div>
+        </div>
+      }
+    </nz-card>
+
+    <nz-card nzTitle="پترن نام‌گذاری" class="mb-4">
+      <div class="flex gap-2 mb-4">
+        <nz-select
+          formControlName="patternId"
+          nzPlaceHolder="پترن را انتخاب کنید (اختیاری)"
+          nzAllowClear
+          class="flex-1"
+          (ngModelChange)="onPatternChange($event)"
+          [ngModel]="selectedPattern()?.id"
+        >
+          @for (pattern of patterns(); track pattern.id) {
+            <nz-option [nzValue]="pattern.id" [nzLabel]="pattern.name"></nz-option>
+          }
+        </nz-select>
+        <button nz-button nzType="dashed" (click)="openCreatePatternModal()">
+          <span nz-icon nzType="plus" nzTheme="outline"></span>
+          ایجاد پترن جدید
+        </button>
+      </div>
+
+      @if (selectedPattern()) {
+        <div class="pattern-info mb-4 p-3 bg-gray-50 rounded">
+          <h4 class="font-semibold">{{ selectedPattern()!.name }}</h4>
+          @if (selectedPattern()!.description) {
+            <p class="text-sm text-gray-600">{{ selectedPattern()!.description }}</p>
+          }
+          <p class="text-xs text-gray-500 mt-1">الگو: {{ selectedPattern()!.pattern }}</p>
+        </div>
+      }
+    </nz-card>
+
+    @if (selectedPattern() && fieldValuesForm) {
+      <nz-card nzTitle="اطلاعات پترن" class="mb-4">
+        <form [formGroup]="fieldValuesForm" class="space-y-4">
+          @for (field of getSortedFields(selectedPattern()!.fields); track field.id) {
+
+            @if (field.fieldType === FieldType.Text) {
+              <nz-form-item>
+                <nz-form-label [nzRequired]="field.isRequired">{{ field.placeholder }}</nz-form-label>
+                <nz-form-control>
+                  <input nz-input [formControlName]="field.fieldName" [placeholder]="field.placeholder" />
+                </nz-form-control>
+              </nz-form-item>
+            }
+            @if (field.fieldType === FieldType.TextArea) {
+              <nz-form-item>
+                <nz-form-label [nzRequired]="field.isRequired">{{ field.placeholder }}</nz-form-label>
+                <nz-form-control>
+                  <textarea nz-input [formControlName]="field.fieldName" [placeholder]="field.placeholder" rows="4"></textarea>
+                </nz-form-control>
+              </nz-form-item>
+            }
+            @if (field.fieldType === FieldType.Number) {
+              <nz-form-item>
+                <nz-form-label [nzRequired]="field.isRequired">{{ field.placeholder }}</nz-form-label>
+                <nz-form-control>
+                  <input nz-input type="number" [formControlName]="field.fieldName" [placeholder]="field.placeholder" />
+                </nz-form-control>
+              </nz-form-item>
+            }
+            @if (field.fieldType === FieldType.Date) {
+              <nz-form-item>
+                <nz-form-label [nzRequired]="field.isRequired">{{ field.placeholder }}</nz-form-label>
+                <nz-form-control>
+                  <nz-date-picker [formControlName]="field.fieldName" nzPlaceHolder="تاریخ را انتخاب کنید" class="w-full"></nz-date-picker>
+                </nz-form-control>
+              </nz-form-item>
+            }
+            @if (field.fieldType === FieldType.Select && field.options) {
+              <nz-form-item>
+                <nz-form-label [nzRequired]="field.isRequired">{{ field.placeholder }}</nz-form-label>
+                <nz-form-control>
+                  <nz-select [formControlName]="field.fieldName" [nzPlaceHolder]="field.placeholder">
+                    @for (option of field.options.split(','); track option) {
+                      <nz-option [nzValue]="option.trim()" [nzLabel]="option.trim()"></nz-option>
+                    }
+                  </nz-select>
+                </nz-form-control>
+              </nz-form-item>
+            }
+          }
+        </form>
+      </nz-card>
+    }
+
+    <div class="flex justify-end gap-2">
+      <button nz-button nzType="primary" nzSize="large" [nzLoading]="uploadPending()" (click)="uploadFile()">
+        <span nz-icon nzType="upload" nzTheme="outline"></span>
+        آپلود فایل
+      </button>
+    </div>
+  </form>
+
+  <nz-modal
+    [nzVisible]="showPatternModal()"
+    (nzVisibleChange)="showPatternModal.set($event)"
+    nzTitle="ایجاد پترن جدید"
+    (nzOnCancel)="showPatternModal.set(false)"
+    [nzFooter]="null"
+    nzWidth="800"
+  >
+    <ng-container *nzModalContent>
+      <form [formGroup]="patternForm" class="space-y-4">
+        <nz-form-item>
+          <nz-form-label nzRequired>نام پترن</nz-form-label>
+          <nz-form-control>
+            <input nz-input formControlName="name" placeholder="نام پترن" />
+          </nz-form-control>
+        </nz-form-item>
+
+        <nz-form-item>
+          <nz-form-label>توضیحات</nz-form-label>
+          <nz-form-control>
+            <textarea nz-input formControlName="description" rows="2" placeholder="توضیحات"></textarea>
+          </nz-form-control>
+        </nz-form-item>
+
+        <nz-form-item>
+          <nz-form-label nzRequired>الگو</nz-form-label>
+          <nz-form-control>
+            <input nz-input formControlName="pattern" placeholder="مثال: {field1}_{field2}_{date}" />
+            <div class="text-xs text-gray-500 mt-1">
+              از نام فیلدها درون {{ '{' }}{{ '}' }} استفاده کنید
+            </div>
+          </nz-form-control>
+        </nz-form-item>
+
+        <nz-divider>فیلدهای پترن</nz-divider>
+
+        <div formArrayName="fields" class="space-y-4">
+          @for (fieldGroup of patternFieldsArray.controls; track $index; let i = $index) {
+            <nz-card [nzTitle]="'فیلد ' + (i + 1)" class="relative">
+              <button nz-button nzType="text" nzDanger class="absolute top-2 right-2" (click)="removePatternField(i)">
+                <span nz-icon nzType="delete" nzTheme="outline"></span>
+              </button>
+
+              <div [formGroupName]="i" class="space-y-3 mt-4">
+                <div class="grid grid-cols-2 gap-4">
+                  <nz-form-item>
+                    <nz-form-label nzRequired>نام فیلد</nz-form-label>
+                    <nz-form-control>
+                      <input nz-input formControlName="fieldName" placeholder="fieldName" />
+                    </nz-form-control>
+                  </nz-form-item>
+                  <nz-form-item>
+                    <nz-form-label nzRequired>برچسب</nz-form-label>
+                    <nz-form-control>
+                      <input nz-input formControlName="placeholder" placeholder="نام فیلد" />
+                    </nz-form-control>
+                  </nz-form-item>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                  <nz-form-item>
+                    <nz-form-label nzRequired>نوع فیلد</nz-form-label>
+                    <nz-form-control>
+                      <nz-select formControlName="fieldType">
+                        <nz-option [nzValue]="FieldType.Text" nzLabel="متن"></nz-option>
+                        <nz-option [nzValue]="FieldType.Number" nzLabel="عدد"></nz-option>
+                        <nz-option [nzValue]="FieldType.Date" nzLabel="تاریخ"></nz-option>
+                        <nz-option [nzValue]="FieldType.Select" nzLabel="انتخابی"></nz-option>
+                        <nz-option [nzValue]="FieldType.TextArea" nzLabel="متن چندخطی"></nz-option>
+                      </nz-select>
+                    </nz-form-control>
+                  </nz-form-item>
+                  <nz-form-item>
+                    <nz-form-label>مقدار پیش‌فرض</nz-form-label>
+                    <nz-form-control>
+                      <input nz-input formControlName="defaultValue" placeholder="مقدار پیش‌فرض" />
+                    </nz-form-control>
+                  </nz-form-item>
+                </div>
+
+                @if (fieldGroup.get('fieldType')?.value === FieldType.Select) {
+                  <nz-form-item>
+                    <nz-form-label>گزینه‌ها</nz-form-label>
+                    <nz-form-control>
+                      <input nz-input formControlName="options" placeholder="گزینه1,گزینه2,گزینه3" />
+                      <div class="text-xs text-gray-500 mt-1">گزینه‌ها را با کاما جدا کنید</div>
+                    </nz-form-control>
+                  </nz-form-item>
+                }
+
+                <nz-form-item>
+                  <nz-form-control>
+                    <label nz-checkbox formControlName="isRequired">فیلد الزامی</label>
+                  </nz-form-control>
+                </nz-form-item>
+              </div>
+            </nz-card>
+          }
+        </div>
+
+        <button nz-button nzType="dashed" (click)="addPatternField()" class="w-full">
+          <span nz-icon nzType="plus" nzTheme="outline"></span>
+          افزودن فیلد
+        </button>
+
+        <div class="flex justify-end gap-2 mt-4">
+          <button nz-button (click)="showPatternModal.set(false)">انصراف</button>
+          <button nz-button nzType="primary" [nzLoading]="pending()" (click)="savePattern()">ذخیره پترن</button>
+        </div>
+      </form>
+    </ng-container>
+  </nz-modal>
+</div>

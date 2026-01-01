@@ -6,9 +6,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { NzMessageModule, NzMessageService } from 'ng-zorro-antd/message';
 import { ActivatedRoute } from '@angular/router';
 import { ReportDataService } from '../report-data.service';
-import { WellViewModel } from '../../gen/model/well';
 import { ReportService } from '@features/report-designer/report.service';
-import { WellService } from '@features/well/well.service';
 
 
 declare var Stimulsoft: any;
@@ -21,7 +19,6 @@ declare var Stimulsoft: any;
   styleUrls: ['./report-viewer.component.scss']
 })
 export default class ReportViewerComponent implements OnInit, AfterViewInit {
-  wellData: WellViewModel | null = null;
   reportId: number = 1; // Default report ID
   private viewer: any;
   isLoading = false;
@@ -30,41 +27,20 @@ export default class ReportViewerComponent implements OnInit, AfterViewInit {
     private reportService: ReportService,
     private reportDataService: ReportDataService,
     private nzMessage: NzMessageService,
-    private route: ActivatedRoute,
-    private wellService: WellService,
+    private route: ActivatedRoute
   ) {}
 
   ngOnInit(): void {
     const id = Number(this.route.snapshot.paramMap.get('id'));
     if (id) {
-      this.loadWell(id);
+      //this.loadWell(id);
     }
-    this.wellData = this.reportDataService.getWellData();
     this.reportId =  1;
 
   }
 
 
-  loadWell(id: number): void {
-    this.isLoading = true;
-    this.wellService.getWell(id).subscribe(
-      (well) => {
-        this.wellData = well;
-        if (this.wellData) {
-          this.loadReport();
-        } else {
-          this.nzMessage.error('داده‌های چاه یافت نشد');
-          this.isLoading = false;
-          setTimeout(() => window.close(), 2000);
-        }
-        this.isLoading = false;
-      },
-      (error) => {
-        this.isLoading = false;
-        this.nzMessage.error('خطا در بارگذاری جزئیات چاه');
-      }
-    );
-  }
+
 
   ngAfterViewInit(): void {
     if (typeof Stimulsoft !== 'undefined' && Stimulsoft.Report && Stimulsoft.Viewer) {
@@ -94,10 +70,6 @@ export default class ReportViewerComponent implements OnInit, AfterViewInit {
   }
 
   private loadReport(): void {
-    if (!this.reportId || !this.wellData) {
-      this.nzMessage.error('شناسه گزارش یا داده‌های چاه یافت نشد');
-      return;
-    }
     this.isLoading = true;
     this.reportService.getReport(this.reportId).subscribe({
       next: (vm) => {
@@ -111,7 +83,7 @@ export default class ReportViewerComponent implements OnInit, AfterViewInit {
           }
 
           // Register well data with the report
-          report.regData('Wells', 'Wells', [this.wellData]);
+          report.regData('Wells', 'Wells', []);
           report.dictionary.synchronize();
 
           this.viewer.report = report;
