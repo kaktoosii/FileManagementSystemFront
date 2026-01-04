@@ -1,138 +1,95 @@
-<div class="w-screen h-screen flex items-center justify-center transition-all">
-  <div class="bg"></div>
-  <div class="w-full md:w-[400px] p-4">
-    <div class="bg-white rounded-2xl pt-1 px-4 shadow-xl grid">
+<div class="w-screen h-screen flex items-center justify-center bg-slate-100">
+  <div class="w-full max-w-sm px-4">
+
+    <div
+      class="bg-white rounded-xl border border-slate-200 shadow-md overflow-hidden"
+    >
+      <!-- Header -->
+      <div class="px-5 pt-6 pb-4 text-center">
+        <h1 class="text-sm font-bold text-slate-800">
+          سامانه مدیریت فایل بایگان
+        </h1>
+      </div>
+
+      <!-- Security Messages -->
+      <div class="mx-4 mb-4 rounded-lg bg-slate-50 border border-slate-200">
+        <ul class="p-3 space-y-1 text-[11px] text-slate-600 leading-5">
+          <li>• رمز عبور خود را به‌صورت دوره‌ای تغییر دهید</li>
+          <li>• از مرورگرهای امن و شخصی استفاده کنید</li>
+          <li>• پس از پایان کار، حتماً از سیستم خارج شوید</li>
+        </ul>
+      </div>
+
+      <!-- Login Form -->
       <form
+        class="px-5 pb-6 space-y-4"
         [formGroup]="loginForm"
         (ngSubmit)="onLogin()"
         autocomplete="off"
         novalidate
       >
-        <span class="flex w-full text-xl justify-center p-2 mb-12"
-          >به <span class="font-bold text-cyan-700 px-2"> سامانه مدیریت کنتور </span> خوش
-          آمدید !
-        </span>
         <input
           formControlName="username"
           type="text"
           placeholder="نام کاربری"
           [readonly]="pending()"
           class="
-            p-2
-            px-4
-            rounded-md
-            items-center
-            w-full
-            border-2
-            !border-gray-200
-            text-xs
+            w-full rounded-lg border border-slate-300
+            px-3 py-2 text-xs
+            focus:outline-none focus:ring-2 focus:ring-blue-600
           "
         />
-        <div class="w-full mt-2 relative flex items-center">
+
+        <div class="relative">
           <input
             formControlName="password"
             [type]="passwordVisible() ? 'text' : 'password'"
-            id="password"
-            placeholder="رمزعبور"
+            placeholder="رمز عبور"
             [readonly]="pending()"
-            class="p-2 px-4 rounded-md w-full border-2 !border-gray-200 text-xs"
+            class="
+              w-full rounded-lg border border-slate-300
+              px-3 py-2 text-xs
+              focus:outline-none focus:ring-2 focus:ring-blue-600
+            "
           />
           <button
             type="button"
             (click)="passwordVisible.set(!passwordVisible())"
-            class="text-gray-400 !absolute p-2 left-0"
+            class="absolute left-2 top-1/2 -translate-y-1/2 text-slate-400"
           >
-            @if (passwordVisible()) {
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke-width="1.5"
-              stroke="currentColor"
-              class="size-6"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z"
-              />
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
-              />
-            </svg>
-            }@else {
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke-width="1.5"
-              stroke="currentColor"
-              class="size-6"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z"
-              />
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
-              />
-            </svg>
-            }
+            <!-- icon -->
           </button>
         </div>
-        <div class="mt-2">
-          <button
-            type="submit"
-            class="
-              group
-              relative
-              w-full
-              flex
-              justify-center
-              py-2
-              px-4
-              border border-transparent
-              text-sm
-              font-bold
-              rounded-lg
-              transition-all
-              text-white
-              bg-gray-600
-              hover:bg-gray-700
-              focus:outline-none
-              focus:ring-2
-              focus:ring-offset-2
-              focus:ring-gray-500
-            "
-            [disabled]="pending()"
-          >
-            @if(!pending()){ ورود }@else { منتظر بمانید ...
-            <div class="loader"></div>
-            }
-          </button>
-        </div>
-        <div class="flex items-center w-full px-2">
+
+        <button
+          type="submit"
+          [disabled]="pending()"
+          class="
+            w-full rounded-lg
+            bg-blue-700 py-2
+            text-xs font-bold text-white
+            hover:bg-blue-800
+            transition
+            disabled:opacity-60
+          "
+        >
+          @if(!pending()){ ورود به سامانه }@else { در حال بررسی ... }
+        </button>
+
+        <div class="text-center">
           <a
             [routerLink]="['/forgot-password']"
-            class="
-              font-medium
-              text-gray-600
-              hover:text-blue-500
-              text-xs
-              mx-auto
-              p-2
-            "
-            disabled
+            class="text-[11px] text-slate-500 hover:text-blue-700"
           >
-            فراموشی رمز
+            فراموشی رمز عبور
           </a>
         </div>
       </form>
     </div>
+
+    <!-- Footer -->
+    <p class="mt-4 text-center text-[10px] text-slate-400">
+      © کلیه حقوق این سامانه محفوظ است
+    </p>
   </div>
 </div>

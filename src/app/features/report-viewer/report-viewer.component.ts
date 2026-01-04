@@ -3,7 +3,7 @@ import { Component, OnInit, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
-import { NzMessageModule, NzMessageService } from 'ng-zorro-antd/message';
+import { NzMessageService } from 'ng-zorro-antd/message';
 import { ActivatedRoute } from '@angular/router';
 import { ReportDataService } from '../report-data.service';
 import { ReportService } from '@features/report-designer/report.service';
@@ -14,7 +14,7 @@ declare var Stimulsoft: any;
 @Component({
   selector: 'app-report-viewer',
   standalone: true,
-  imports: [CommonModule, FormsModule, HttpClientModule, NzMessageModule],
+  imports: [CommonModule, FormsModule, HttpClientModule],
   templateUrl: './report-viewer.component.html',
   styleUrls: ['./report-viewer.component.scss']
 })

@@ -21,7 +21,10 @@ import { NzModalModule, NzModalService } from "ng-zorro-antd/modal";
 import { NzDividerModule } from "ng-zorro-antd/divider";
 import { NzUploadModule } from "ng-zorro-antd/upload";
 import { NzTreeSelectModule } from "ng-zorro-antd/tree-select";
+import { NzTreeModule, NzTreeNodeOptions, NzTreeNode } from "ng-zorro-antd/tree";
 import { NzCheckboxModule } from "ng-zorro-antd/checkbox";
+import { NzDropDownModule } from "ng-zorro-antd/dropdown";
+import { NzMenuModule } from "ng-zorro-antd/menu";
 import { FileService } from "./file.service";
 import { FolderService, FolderDto } from "./folder.service";
 import { FilePatternService, FilePatternDto, FieldType, CreateFilePatternDto, PatternFieldDto } from "./file-pattern.service";
@@ -44,7 +47,10 @@ import { finalize } from "rxjs";
     NzDividerModule,
     NzUploadModule,
     NzTreeSelectModule,
+    NzTreeModule,
     NzCheckboxModule,
+    NzDropDownModule,
+    NzMenuModule,
   ],
   providers: [FileService, FolderService, FilePatternService, NzModalService],
   templateUrl: "./upload-file.component.html",
@@ -67,6 +73,7 @@ export default class UploadFileComponent implements OnInit {
 
   // Data
   folders: WritableSignal<FolderDto[]> = signal([]);
+  folderTree: WritableSignal<NzTreeNodeOptions[]> = signal([]);
   patterns: WritableSignal<FilePatternDto[]> = signal([]);
   selectedFolderId: WritableSignal<number | null> = signal(null);
   selectedFile: WritableSignal<File | null> = signal(null);
@@ -77,16 +84,26 @@ export default class UploadFileComponent implements OnInit {
   pending = signal(false);
   uploadPending = signal(false);
   showPatternModal = signal(false);
+  showFolderModal = signal(false);
+  showAddOptionModal = signal(false);
+  currentSelectFieldName = signal('');
+  newOptionValue = signal('');
+  editingFolderId: WritableSignal<number | null> = signal(null);
+  newFolderName = signal('');
+  newFolderParentId: WritableSignal<number | null> = signal(null);
 
   // Preview
   previewUrl = signal<string | null>(null);
   previewType = signal<'image' | 'pdf' | null>(null);
 
+  // Pattern options
+  selectFieldOptions: WritableSignal<Record<string, string[]>> = signal({});
+
   FieldType = FieldType;
 
   ngOnInit(): void {
     this.initializeForms();
-    this.loadFolders();
+    this.loadFolderTree();
     this.loadPatterns();
   }
 
@@ -120,6 +137,174 @@ export default class UploadFileComponent implements OnInit {
           this.messageService.error("خطا در بارگذاری پوشه‌ها: " + (err.error?.message || err.message));
         },
       });
+  }
+
+  loadFolderTree() {
+    this.pending.set(true);
+    this.folderService
+      .getFoldersByUser()
+      .pipe(finalize(() => this.pending.set(false)))
+      .subscribe({
+        next: (folders: FolderDto[]) => {
+          this.folders.set(folders);
+          this.folderTree.set(this.buildFolderTree(folders));
+        },
+        error: (err: any) => {
+          this.messageService.error("خطا در بارگذاری پوشه‌ها: " + (err.error?.message || err.message));
+        },
+      });
+  }
+
+  buildFolderTree(folders: FolderDto[]): NzTreeNodeOptions[] {
+    const rootFolders = folders.filter(f => !f.parentFolderId);
+
+    const buildNode = (folder: FolderDto): NzTreeNodeOptions => {
+      const children = folders
+        .filter(f => f.parentFolderId === folder.id)
+        .map(child => buildNode(child));
+
+      return {
+        title: folder.name,
+        key: folder.id.toString(),
+        children: children.length > 0 ? children : undefined,
+        isLeaf: children.length === 0,
+        icon: 'folder',
+      };
+    };
+
+    return rootFolders.map(folder => buildNode(folder));
+  }
+
+  onFolderTreeSelect(event: any): void {
+    const keys = event?.keys || (event && Array.isArray(event) ? event : []);
+    if (keys && keys.length > 0) {
+      const folderId = Number(keys[0]);
+      this.selectedFolderId.set(folderId);
+      this.uploadForm.patchValue({ folderId });
+    } else {
+      this.selectedFolderId.set(null);
+      this.uploadForm.patchValue({ folderId: null });
+    }
+  }
+
+  openCreateFolderModal(parentId?: number): void {
+    this.newFolderParentId.set(parentId || null);
+    this.newFolderName.set('');
+    this.editingFolderId.set(null);
+    this.showFolderModal.set(true);
+  }
+
+  openEditFolderModal(folderId: number): void {
+    this.editingFolderId.set(folderId);
+    this.folderService.getFolderById(folderId).subscribe({
+      next: (folder: FolderDto) => {
+        this.newFolderName.set(folder.name);
+        this.newFolderParentId.set(folder.parentFolderId || null);
+        this.showFolderModal.set(true);
+      },
+      error: (err: any) => {
+        this.messageService.error("خطا در بارگذاری پوشه: " + (err.error?.message || err.message));
+      },
+    });
+  }
+
+  openEditFolderFromTree(node: NzTreeNode) {
+  const folderId = Number(node.key);
+  this.openEditFolderModal(folderId);
+}
+
+openCreateSubfolderFromTree(node: NzTreeNode) {
+  const folderId = Number(node.key);
+  this.openCreateFolderModal(folderId);
+}
+
+deleteFolderFromTreeMenu(node: NzTreeNode) {
+  const folderId = Number(node.key);
+  this.deleteFolderFromTree(folderId);
+}
+
+  saveFolder(): void {
+    const name = this.newFolderName().trim();
+    if (!name) {
+      this.messageService.warning("لطفا نام پوشه را وارد کنید");
+      return;
+    }
+
+    const editingId = this.editingFolderId();
+    const parentId = this.newFolderParentId();
+
+    if (editingId) {
+      this.pending.set(true);
+      this.folderService
+        .updateFolder(editingId, {
+          name,
+          parentFolderId: parentId || undefined,
+        })
+        .pipe(finalize(() => {
+          this.pending.set(false);
+          this.showFolderModal.set(false);
+          this.editingFolderId.set(null);
+        }))
+        .subscribe({
+          next: (response: { message: string }) => {
+            this.messageService.success(response.message || "پوشه با موفقیت ویرایش شد");
+            this.loadFolderTree();
+          },
+          error: (err: any) => {
+            this.messageService.error("خطا در ویرایش پوشه: " + (err.error?.message || err.message));
+          },
+        });
+    } else {
+      this.pending.set(true);
+      this.folderService
+        .createFolder({
+          name,
+          parentFolderId: parentId || undefined,
+        })
+        .pipe(finalize(() => {
+          this.pending.set(false);
+          this.showFolderModal.set(false);
+          this.newFolderParentId.set(null);
+        }))
+        .subscribe({
+          next: (response: { message: string; folderId: number }) => {
+            this.messageService.success(response.message || "پوشه با موفقیت ایجاد شد");
+            this.loadFolderTree();
+          },
+          error: (err: any) => {
+            this.messageService.error("خطا در ایجاد پوشه: " + (err.error?.message || err.message));
+          },
+        });
+    }
+  }
+
+  deleteFolderFromTree(folderId: number): void {
+    this.modalService.confirm({
+      nzTitle: "حذف پوشه",
+      nzContent: "آیا مطمئن هستید که می‌خواهید این پوشه را حذف کنید؟",
+      nzOkText: "بله",
+      nzOkType: "primary",
+      nzCancelText: "خیر",
+      nzOnOk: () => {
+        this.pending.set(true);
+        this.folderService
+          .deleteFolder(folderId)
+          .pipe(finalize(() => this.pending.set(false)))
+          .subscribe({
+            next: (response: { message: string }) => {
+              this.messageService.success(response.message || "پوشه با موفقیت حذف شد");
+              this.loadFolderTree();
+              if (this.selectedFolderId() === folderId) {
+                this.selectedFolderId.set(null);
+                this.uploadForm.patchValue({ folderId: null });
+              }
+            },
+            error: (err: any) => {
+              this.messageService.error("خطا در حذف پوشه: " + (err.error?.message || err.message));
+            },
+          });
+      },
+    });
   }
 
   loadPatterns() {
@@ -192,6 +377,7 @@ debugger
 
   buildFieldValuesForm(pattern: FilePatternDto) {
     const formControls: Record<string, any> = {};
+    const optionsMap: Record<string, string[]> = {};
 
     // Sort fields by order
     const sortedFields = [...pattern.fields].sort((a, b) => a.order - b.order);
@@ -206,9 +392,50 @@ debugger
       }
 
       formControls[field.fieldName] = [defaultValue, validators];
+
+      // Store options for select fields
+      if (field.fieldType === FieldType.Select && field.options) {
+        optionsMap[field.fieldName] = field.options.split(',').map(o => o.trim()).filter(o => o);
+      }
     });
 
     this.fieldValuesForm = this.fb.group(formControls);
+    this.selectFieldOptions.set(optionsMap);
+  }
+
+  openAddOptionModal(fieldName: string): void {
+    this.currentSelectFieldName.set(fieldName);
+    this.newOptionValue.set('');
+    this.showAddOptionModal.set(true);
+  }
+
+  addOptionToSelectField(): void {
+    const fieldName = this.currentSelectFieldName();
+    const newOption = this.newOptionValue().trim();
+
+    if (!newOption) {
+      this.messageService.warning("لطفا نام گزینه را وارد کنید");
+      return;
+    }
+
+    const currentOptions = this.selectFieldOptions();
+    const options = currentOptions[fieldName] || [];
+
+    if (options.includes(newOption)) {
+      this.messageService.warning("این گزینه قبلا اضافه شده است");
+      return;
+    }
+
+    const updatedOptions = { ...currentOptions };
+    updatedOptions[fieldName] = [...options, newOption];
+    this.selectFieldOptions.set(updatedOptions);
+    this.messageService.success("گزینه با موفقیت اضافه شد");
+    this.showAddOptionModal.set(false);
+    this.newOptionValue.set('');
+  }
+
+  getSelectOptions(fieldName: string): string[] {
+    return this.selectFieldOptions()[fieldName] || [];
   }
 
   openCreatePatternModal() {

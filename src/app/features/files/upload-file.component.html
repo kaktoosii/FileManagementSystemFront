@@ -1,27 +1,9 @@
-<div class="upload-container p-6">
-  <h2 class="text-2xl font-bold mb-6">آپلود فایل</h2>
+<div class="upload-container">
+  <div class="upload-layout">
+    <!-- Main Content (4/5 width) -->
+    <div class="main-content">
+      <form [formGroup]="uploadForm" class="space-y-6">
 
-  <form [formGroup]="uploadForm" class="space-y-6">
-    <nz-card nzTitle="انتخاب پوشه" class="mb-4">
-      <nz-form-item>
-        <nz-form-label nzRequired>پوشه مقصد</nz-form-label>
-        <nz-form-control>
-          <nz-select
-            formControlName="folderId"
-            nzPlaceHolder="پوشه را انتخاب کنید"
-            nzAllowClear
-            (ngModelChange)="onFolderChange($event)"
-            [ngModel]="selectedFolderId()"
-          >
-            @for (folder of folders(); track folder.id) {
-              <nz-option [nzValue]="folder.id" [nzLabel]="folder.name"></nz-option>
-            }
-          </nz-select>
-        </nz-form-control>
-      </nz-form-item>
-    </nz-card>
-
-    <nz-card nzTitle="انتخاب فایل" class="mb-4">
       <nz-form-item>
         <nz-form-label nzRequired>فایل</nz-form-label>
         <nz-form-control>
@@ -58,7 +40,7 @@
           </div>
         </div>
       }
-    </nz-card>
+
 
     <nz-card nzTitle="پترن نام‌گذاری" class="mb-4">
       <div class="flex gap-2 mb-4">
@@ -128,15 +110,20 @@
                 </nz-form-control>
               </nz-form-item>
             }
-            @if (field.fieldType === FieldType.Select && field.options) {
+            @if (field.fieldType === FieldType.Select) {
               <nz-form-item>
                 <nz-form-label [nzRequired]="field.isRequired">{{ field.placeholder }}</nz-form-label>
                 <nz-form-control>
-                  <nz-select [formControlName]="field.fieldName" [nzPlaceHolder]="field.placeholder">
-                    @for (option of field.options.split(','); track option) {
-                      <nz-option [nzValue]="option.trim()" [nzLabel]="option.trim()"></nz-option>
-                    }
-                  </nz-select>
+                  <div class="flex gap-2">
+                    <nz-select [formControlName]="field.fieldName" [nzPlaceHolder]="field.placeholder" class="flex-1">
+                      @for (option of getSelectOptions(field.fieldName); track option) {
+                        <nz-option [nzValue]="option" [nzLabel]="option"></nz-option>
+                      }
+                    </nz-select>
+                    <button nz-button nzType="dashed" (click)="openAddOptionModal(field.fieldName)" title="افزودن گزینه جدید">
+                      <span nz-icon nzType="plus" nzTheme="outline"></span>
+                    </button>
+                  </div>
                 </nz-form-control>
               </nz-form-item>
             }
@@ -151,7 +138,143 @@
         آپلود فایل
       </button>
     </div>
-  </form>
+      </form>
+    </div>
+
+    <!-- Sidebar (1/5 width) -->
+    <div class="folder-sidebar">
+      <div class="sidebar-header">
+        <h3 class="text-lg font-semibold">پوشه‌ها</h3>
+        <button nz-button nzType="primary" nzSize="small" (click)="openCreateFolderModal()">
+          <span nz-icon nzType="plus" nzTheme="outline"></span>
+        </button>
+      </div>
+      <div class="tree-wrapper">
+        <nz-tree
+          [nzData]="folderTree()"
+          [nzSelectedKeys]="selectedFolderId() ? [selectedFolderId()!.toString()] : []"
+          (nzClick)="onFolderTreeSelect($event)"
+          [nzBlockNode]="true"
+        >
+          <ng-template #nzTreeTemplate let-node>
+            <!-- <div class="tree-node-wrapper">
+              <span class="tree-node-title">{{ node.title }}</span>
+              <nz-dropdown [nzTrigger]="'click'" nzPlacement="bottomRight">
+                <button nz-button nzType="text" nzSize="small" class="tree-node-menu" (click)="$event.stopPropagation()">
+                  <span nz-icon nzType="more" nzTheme="outline"></span>
+                </button>
+                <ul nz-menu nz-dropdown-menu class="folder-context-menu">
+                  <li nz-menu-item (click)="openEditFolderFromTree(node); $event.stopPropagation()">
+                    <span nz-icon nzType="edit" nzTheme="outline"></span>
+                    ویرایش
+                  </li>
+                  <li nz-menu-item (click)="openCreateSubfolderFromTree(node); $event.stopPropagation()">
+                    <span nz-icon nzType="folder-add" nzTheme="outline"></span>
+                    ایجاد زیرپوشه
+                  </li>
+                  <li nz-menu-divider></li>
+                  <li nz-menu-item nzDanger (click)="deleteFolderFromTreeMenu(node); $event.stopPropagation()">
+                    <span nz-icon nzType="delete" nzTheme="outline"></span>
+                    حذف
+                  </li>
+                </ul>
+              </nz-dropdown>
+            </div> -->
+            <div class="tree-node-wrapper">
+              <span class="tree-node-title">{{ node.title }}</span>
+
+              <button
+                nz-button
+                nzType="text"
+                nzSize="small"
+                nz-dropdown
+                [nzDropdownMenu]="folderMenu"
+                nzTrigger="click"
+                nzPlacement="bottomRight"
+                (click)="$event.stopPropagation()"
+              >
+                <span nz-icon nzType="more"></span>
+              </button>
+
+              <nz-dropdown-menu #folderMenu="nzDropdownMenu">
+                <ul nz-menu class="folder-context-menu">
+                  <li nz-menu-item (click)="openEditFolderFromTree(node)">
+                    <span nz-icon nzType="edit"></span>
+                    ویرایش
+                  </li>
+
+                  <li nz-menu-item (click)="openCreateSubfolderFromTree(node)">
+                    <span nz-icon nzType="folder-add"></span>
+                    ایجاد زیرپوشه
+                  </li>
+
+                  <li nz-menu-divider></li>
+
+                  <li nz-menu-item nzDanger (click)="deleteFolderFromTreeMenu(node)">
+                    <span nz-icon nzType="delete"></span>
+                    حذف
+                  </li>
+                </ul>
+              </nz-dropdown-menu>
+            </div>
+
+          </ng-template>
+        </nz-tree>
+      </div>
+      @if (selectedFolderId()) {
+        <div class="selected-folder-actions">
+          <button nz-button nzType="text" nzSize="small" (click)="openEditFolderModal(selectedFolderId()!)">
+            <span nz-icon nzType="edit" nzTheme="outline"></span>
+            ویرایش
+          </button>
+          <button nz-button nzType="text" nzSize="small" (click)="openCreateFolderModal(selectedFolderId()!)">
+            <span nz-icon nzType="folder-add" nzTheme="outline"></span>
+            زیرپوشه
+          </button>
+          <button nz-button nzType="text" nzSize="small" nzDanger (click)="deleteFolderFromTree(selectedFolderId()!)">
+            <span nz-icon nzType="delete" nzTheme="outline"></span>
+            حذف
+          </button>
+        </div>
+      }
+    </div>
+  </div>
+
+  <nz-modal
+    [nzVisible]="showFolderModal()"
+    (nzVisibleChange)="showFolderModal.set($event)"
+    [nzTitle]="editingFolderId() ? 'ویرایش پوشه' : 'ایجاد پوشه جدید'"
+    (nzOnCancel)="showFolderModal.set(false)"
+    (nzOnOk)="saveFolder()"
+    [nzOkLoading]="pending()"
+  >
+    <ng-container *nzModalContent>
+        <nz-form-item>
+          <nz-form-label>نام پوشه</nz-form-label>
+          <nz-form-control>
+            <input nz-input [ngModel]="newFolderName()" (ngModelChange)="newFolderName.set($event)" placeholder="نام پوشه را وارد کنید" />
+          </nz-form-control>
+        </nz-form-item>
+    </ng-container>
+  </nz-modal>
+
+  <!-- Add Option Modal -->
+  <nz-modal
+    [nzVisible]="showAddOptionModal()"
+    (nzVisibleChange)="showAddOptionModal.set($event)"
+    nzTitle="افزودن گزینه جدید"
+    (nzOnCancel)="showAddOptionModal.set(false)"
+    (nzOnOk)="addOptionToSelectField()"
+  >
+    <ng-container *nzModalContent>
+      <nz-form-item>
+        <nz-form-label>نام گزینه</nz-form-label>
+        <nz-form-control>
+          <input nz-input [ngModel]="newOptionValue()" (ngModelChange)="newOptionValue.set($event)" placeholder="نام گزینه جدید را وارد کنید" />
+        </nz-form-control>
+      </nz-form-item>
+    </ng-container>
+  </nz-modal>
 
   <nz-modal
     [nzVisible]="showPatternModal()"

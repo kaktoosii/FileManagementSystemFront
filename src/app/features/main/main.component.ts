@@ -47,9 +47,9 @@ export default class MainComponent implements OnInit {
   readonly menuPermissions: { [key: string]: string } = {
     './home': ':Dashboard:Get:GET',
     './users': ':Users:Get:GET',
-    './setting': ':Settings:GetSettings:GET',
-    './support': ':Supports:GetAllSupportRequests:GET',
-    './messages': ':Messages:GetAllMessages:GET',
+    './files/upload': ':File:Upload:GET',
+    './files': ':Folder:GetRootFolders:GET',
+    './support': ':Supports:GetAllSupportRequests:GET'
   };
 
   isCollapsed = false;

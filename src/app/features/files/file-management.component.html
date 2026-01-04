@@ -1,142 +1,234 @@
-<div class="p-4">
-  <!-- Header with Upload Button -->
-  <div class="flex justify-between items-center mb-4">
-    <h2 class="text-xl font-bold">مدیریت فایل‌ها</h2>
-    <div class="flex gap-2">
-      <button nz-button nzType="default" (click)="createFolder()">
-        <span nz-icon nzType="folder-add" nzTheme="outline"></span>
-        ایجاد پوشه
-      </button>
-      <button nz-button nzType="primary" (click)="showUploadModal.set(true)">
-        <span nz-icon nzType="upload" nzTheme="outline"></span>
-        آپلود فایل
-      </button>
-    </div>
-  </div>
-
-  <!-- Breadcrumb Navigation -->
-  <nz-breadcrumb class="mb-4">
-    <nz-breadcrumb-item>
-      <a (click)="navigateToFolder(-1)">خانه</a>
-    </nz-breadcrumb-item>
-    @for (folder of folderPath(); track folder.id; let i = $index) {
-    <nz-breadcrumb-item>
-      <a (click)="navigateToFolder(i)">{{ folder.name }}</a>
-    </nz-breadcrumb-item>
-    }
-  </nz-breadcrumb>
-
-  <!-- Folders Section -->
-  @if (folders().length > 0) {
-  <nz-card class="mb-4" nzTitle="پوشه‌ها">
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-      @for (folder of folders(); track folder.id) {
-      <div
-        class="border rounded-lg p-4 hover:shadow-lg transition-shadow cursor-pointer"
-        (click)="enterFolder(folder)"
-      >
-        <div class="flex items-center justify-between">
-          <div class="flex items-center gap-2">
-            <span nz-icon nzType="folder" nzTheme="fill" class="text-yellow-500 text-2xl"></span>
-            <div>
-              <div class="font-semibold">{{ folder.name }}</div>
-              @if (folder.description) {
-              <div class="text-sm text-gray-500">{{ folder.description }}</div>
-              }
-              <div class="text-xs text-gray-400 mt-1">
-                {{ folder.documentCount }} فایل
-              </div>
-            </div>
+<div class="file-management-container">
+  <div class="file-management-layout">
+    <!-- Main Content -->
+    <div class="main-content">
+      <!-- Header -->
+      <div class="header-section">
+        <h2 class="text-xl font-bold">مدیریت فایل‌ها</h2>
+        <div class="flex gap-2">
+          <div class="view-mode-buttons">
+            <button
+              nz-button
+              nzType="default"
+              nzSize="small"
+              [nzType]="viewMode() === 'list' ? 'primary' : 'default'"
+              (click)="setViewMode('list')"
+              title="نمایش لیستی"
+            >
+              <span nz-icon nzType="unordered-list" nzTheme="outline"></span>
+            </button>
+            <button
+              nz-button
+              nzType="default"
+              nzSize="small"
+              [nzType]="viewMode() === 'icon' ? 'primary' : 'default'"
+              (click)="setViewMode('icon')"
+              title="نمایش آیکون"
+            >
+              <span nz-icon nzType="appstore" nzTheme="outline"></span>
+            </button>
+            <button
+              nz-button
+              nzType="default"
+              nzSize="small"
+              [nzType]="viewMode() === 'thumbnail' ? 'primary' : 'default'"
+              (click)="setViewMode('thumbnail')"
+              title="نمایش تصویر بندانگشتی"
+            >
+              <span nz-icon nzType="picture" nzTheme="outline"></span>
+            </button>
           </div>
-          <button
-            nz-button
-            nzType="text"
-            nzDanger
-            nz-popconfirm
-            nzPopconfirmTitle="آیا مطمئن هستید که می‌خواهید این پوشه را حذف کنید؟"
-            nzPopconfirmPlacement="top"
-            (nzOnConfirm)="deleteFolder(folder)"
-            (click)="$event.stopPropagation()"
-          >
-            <span nz-icon nzType="delete" nzTheme="outline"></span>
+          <button nz-button nzType="primary" (click)="showUploadModal.set(true)">
+            <span nz-icon nzType="upload" nzTheme="outline"></span>
+            آپلود فایل
           </button>
         </div>
       </div>
+
+      <!-- Files Display -->
+      <div class="files-section">
+        @if (files().length === 0 && !pending()) {
+          <div class="empty-state">
+            <span nz-icon nzType="file" nzTheme="outline" class="empty-icon"></span>
+            <p class="empty-text">فایلی یافت نشد</p>
+          </div>
+        }
+
+        @if (viewMode() === 'list') {
+          <!-- List View -->
+          <div class="file-list">
+            @for (file of files(); track file.id) {
+              <div class="file-item-list">
+                <div class="file-info">
+                  <span nz-icon [nzType]="getFileIcon(file)" nzTheme="outline" class="file-icon"></span>
+                  <div class="file-details">
+                    <div class="file-name">{{ file.fileName }}</div>
+                    <div class="file-meta">
+                      <span>{{ formatFileSize(file.fileSize) }}</span>
+                      <span class="divider">•</span>
+                      <span>{{ file.registerDate | date: 'yyyy/MM/dd HH:mm' }}</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="file-actions">
+                  <button nz-button nzType="text" nzSize="small" (click)="downloadFile(file)" title="دانلود">
+                    <span nz-icon nzType="download" nzTheme="outline"></span>
+                  </button>
+                  <button
+                    nz-button
+                    nzType="text"
+                    nzSize="small"
+                    nzDanger
+                    nz-popconfirm
+                    nzPopconfirmTitle="آیا مطمئن هستید که می‌خواهید این فایل را حذف کنید؟"
+                    (nzOnConfirm)="deleteFile(file)"
+                    title="حذف"
+                  >
+                    <span nz-icon nzType="delete" nzTheme="outline"></span>
+                  </button>
+                </div>
+              </div>
+            }
+          </div>
+        }
+
+        @if (viewMode() === 'icon' || viewMode() === 'thumbnail') {
+          <!-- Icon/Thumbnail View -->
+          <div class="file-grid">
+            @for (file of files(); track file.id) {
+              <div class="file-item-grid">
+                @if (viewMode() === 'thumbnail' && isImageFile(file)) {
+                  <div class="file-thumbnail">
+                    <img [src]="getFileThumbnailUrl(file)" [alt]="file.originalFileName" class="thumbnail-image" />
+                  </div>
+                } @else {
+                  <div class="file-icon-large">
+                    <span nz-icon [nzType]="getFileIcon(file)" nzTheme="outline"></span>
+                  </div>
+                }
+                <div class="file-name-grid">{{ file.originalFileName }}</div>
+                <div class="file-meta-grid">
+                  <span>{{ formatFileSize(file.fileSize) }}</span>
+                  <span>{{ file.registerDate | date: 'yyyy/MM/dd' }}</span>
+                </div>
+                <div class="file-actions-grid">
+                  <button nz-button nzType="text" nzSize="small" (click)="downloadFile(file)" title="دانلود">
+                    <span nz-icon nzType="download" nzTheme="outline"></span>
+                  </button>
+                  <button
+                    nz-button
+                    nzType="text"
+                    nzSize="small"
+                    nzDanger
+                    nz-popconfirm
+                    nzPopconfirmTitle="آیا مطمئن هستید که می‌خواهید این فایل را حذف کنید؟"
+                    (nzOnConfirm)="deleteFile(file)"
+                    title="حذف"
+                  >
+                    <span nz-icon nzType="delete" nzTheme="outline"></span>
+                  </button>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="folder-sidebar">
+      <div class="sidebar-header">
+        <h3 class="text-lg font-semibold">پوشه‌ها</h3>
+        <button nz-button nzType="primary" nzSize="small" (click)="openCreateFolderModal()">
+          <span nz-icon nzType="plus" nzTheme="outline"></span>
+        </button>
+      </div>
+      <div class="tree-wrapper">
+        <nz-tree
+          [nzData]="folderTree()"
+          [nzSelectedKeys]="currentFolderId() ? [currentFolderId()!.toString()] : []"
+          (nzClick)="onFolderTreeSelect($event)"
+          [nzBlockNode]="true"
+        >
+          <ng-template #nzTreeTemplate let-node>
+              <!-- <nz-dropdown [nzTrigger]="'click'" nzPlacement="bottomRight">
+                <button nz-button nzType="text" nzSize="small" class="tree-node-menu" (click)="$event.stopPropagation()">
+                  <span nz-icon nzType="more" nzTheme="outline"></span>
+                </button>
+                <ul nz-menu class="folder-context-menu">
+                  <li nz-menu-item (click)="openEditFolderModalFromTree(node); $event.stopPropagation()">
+                    <span nz-icon nzType="edit" nzTheme="outline"></span>
+                    ویرایش
+                  </li>
+                  <li nz-menu-item (click)="openCreateSubfolderFromTree(node); $event.stopPropagation()">
+                    <span nz-icon nzType="folder-add" nzTheme="outline"></span>
+                    ایجاد زیرپوشه
+                  </li>
+                  <li nz-menu-divider></li>
+                  <li nz-menu-item nzDanger (click)="deleteFolderFromTreeDirect(node); $event.stopPropagation()">
+                    <span nz-icon nzType="delete" nzTheme="outline"></span>
+                    حذف
+                  </li>
+                </ul>
+              </nz-dropdown> -->
+            <div class="tree-node-wrapper">
+              <span class="tree-node-title">{{ node.title }}</span>
+
+              <button
+                nz-button
+                nzType="text"
+                nzSize="small"
+                nz-dropdown
+                [nzDropdownMenu]="folderMenu"
+                nzTrigger="click"
+                nzPlacement="bottomRight"
+                (click)="$event.stopPropagation()"
+              >
+                <span nz-icon nzType="more"></span>
+              </button>
+              <nz-dropdown-menu #folderMenu="nzDropdownMenu">
+                <ul nz-menu class="folder-context-menu">
+                  <li nz-menu-item (click)="openEditFolderModalFromTree(node)">
+                    <span nz-icon nzType="edit"></span>
+                    ویرایش
+                  </li>
+
+                  <li nz-menu-item (click)="openCreateSubfolderFromTree(node)">
+                    <span nz-icon nzType="folder-add"></span>
+                    ایجاد زیرپوشه
+                  </li>
+
+                  <li nz-menu-divider></li>
+
+                  <li nz-menu-item nzDanger (click)="deleteFolderFromTreeDirect(node)">
+                    <span nz-icon nzType="delete"></span>
+                    حذف
+                  </li>
+               </ul>
+              </nz-dropdown-menu>
+            </div>
+
+          </ng-template>
+        </nz-tree>
+      </div>
+      @if (currentFolderId()) {
+        <div class="selected-folder-actions">
+          <button nz-button nzType="text" nzSize="small" (click)="openEditFolderModal(currentFolderId()!)">
+            <span nz-icon nzType="edit" nzTheme="outline"></span>
+            ویرایش
+          </button>
+          <button nz-button nzType="text" nzSize="small" (click)="openCreateFolderModal(currentFolderId()!)">
+            <span nz-icon nzType="folder-add" nzTheme="outline"></span>
+            زیرپوشه
+          </button>
+          <button nz-button nzType="text" nzSize="small" nzDanger (click)="deleteFolderFromTree(currentFolderId()!)">
+            <span nz-icon nzType="delete" nzTheme="outline"></span>
+            حذف
+          </button>
+        </div>
       }
     </div>
-  </nz-card>
-  }
-
-  <!-- Files Table -->
-  <nz-card nzTitle="فایل‌ها">
-    <nz-table
-      #filesTable
-      [nzData]="files()"
-      [nzLoading]="pending()"
-      [nzFrontPagination]="false"
-      [nzShowPagination]="false"
-    >
-      <thead>
-        <tr>
-          <th>نام فایل</th>
-          <th>نوع فایل</th>
-          <th>حجم</th>
-          <th>تاریخ آپلود</th>
-          <th>عملیات</th>
-        </tr>
-      </thead>
-      <tbody>
-        @if (files().length === 0 && !pending()) {
-        <tr>
-          <td colspan="5" class="text-center py-8 text-gray-500">
-            فایلی یافت نشد
-          </td>
-        </tr>
-        }
-        @for (file of filesTable.data; track file.id) {
-        <tr>
-          <td>
-            <div class="flex items-center gap-2">
-              <span nz-icon nzType="file" nzTheme="outline" class="text-blue-500"></span>
-              {{ file.originalFileName }}
-            </div>
-          </td>
-          <td>
-            <nz-tag>{{ file.mimeType }}</nz-tag>
-          </td>
-          <td>{{ formatFileSize(file.fileSize) }}</td>
-          <td>{{ file.registerDate | date: 'yyyy/MM/dd HH:mm' }}</td>
-          <td>
-            <div class="flex gap-2">
-              <button
-                nz-button
-                nzType="link"
-                nzSize="small"
-                (click)="downloadFile(file)"
-                title="دانلود"
-              >
-                <span nz-icon nzType="download" nzTheme="outline"></span>
-              </button>
-              <button
-                nz-button
-                nzType="link"
-                nzSize="small"
-                nzDanger
-                nz-popconfirm
-                nzPopconfirmTitle="آیا مطمئن هستید که می‌خواهید این فایل را حذف کنید؟"
-                nzPopconfirmPlacement="top"
-                (nzOnConfirm)="deleteFile(file)"
-                title="حذف"
-              >
-                <span nz-icon nzType="delete" nzTheme="outline"></span>
-              </button>
-            </div>
-          </td>
-        </tr>
-        }
-      </tbody>
-    </nz-table>
-  </nz-card>
+  </div>
 
   <!-- Upload Modal -->
   <nz-modal
@@ -165,12 +257,23 @@
       </div>
     </ng-container>
   </nz-modal>
-</div>
 
-<ng-template #createFolderTemplate>
-  <div class="modal-content">
-    <nz-input-group nzPrefix="نام پوشه:">
-      <input nz-input placeholder="نام پوشه را وارد کنید" [(ngModel)]="newFolderName" id="folderNameInput" />
-    </nz-input-group>
-  </div>
-</ng-template>
+  <!-- Folder Modal -->
+  <nz-modal
+    [nzVisible]="showFolderModal()"
+    (nzVisibleChange)="showFolderModal.set($event)"
+    [nzTitle]="editingFolderId() ? 'ویرایش پوشه' : 'ایجاد پوشه جدید'"
+    (nzOnCancel)="showFolderModal.set(false)"
+    (nzOnOk)="saveFolder()"
+    [nzOkLoading]="pending()"
+  >
+    <ng-container *nzModalContent>
+      <nz-form-item>
+        <nz-form-label>نام پوشه</nz-form-label>
+        <nz-form-control>
+          <input nz-input [ngModel]="newFolderName()" (ngModelChange)="newFolderName.set($event)" placeholder="نام پوشه را وارد کنید" />
+        </nz-form-control>
+      </nz-form-item>
+    </ng-container>
+  </nz-modal>
+</div>
