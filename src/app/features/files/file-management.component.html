@@ -99,14 +99,14 @@
               <div class="file-item-grid">
                 @if (viewMode() === 'thumbnail' && isImageFile(file)) {
                   <div class="file-thumbnail">
-                    <img [src]="getFileThumbnailUrl(file)" [alt]="file.originalFileName" class="thumbnail-image" />
+                    <img [src]="getFileThumbnailUrl(file)" [alt]="file.fileName" class="thumbnail-image" />
                   </div>
                 } @else {
                   <div class="file-icon-large">
                     <span nz-icon [nzType]="getFileIcon(file)" nzTheme="outline"></span>
                   </div>
                 }
-                <div class="file-name-grid">{{ file.originalFileName }}</div>
+                <div class="file-name-grid">{{ file.fileName }}</div>
                 <div class="file-meta-grid">
                   <span>{{ formatFileSize(file.fileSize) }}</span>
                   <span>{{ file.registerDate | date: 'yyyy/MM/dd' }}</span>

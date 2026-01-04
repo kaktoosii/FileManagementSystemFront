@@ -30,6 +30,7 @@ import { NzDividerModule } from "ng-zorro-antd/divider";
 import { NzTreeModule, NzTreeNodeOptions, NzTreeNode } from "ng-zorro-antd/tree";
 import { NzDropDownModule } from "ng-zorro-antd/dropdown";
 import { NzMenuModule } from "ng-zorro-antd/menu";
+import { BASE_URL } from "@core/base-url-token";
 
 @Component({
   selector: "app-file-management",
@@ -63,6 +64,7 @@ export default class FileManagementComponent implements OnInit {
   private readonly folderService = inject(FolderService);
   private readonly messageService = inject(NzMessageService);
   private readonly modalService = inject(NzModalService);
+  private readonly baseURL = inject(BASE_URL) + "File";
 
   @ViewChild('createFolderTemplate') createFolderTemplate!: TemplateRef<any>;
   files: WritableSignal<FileDto[]> = signal([]);
@@ -249,7 +251,7 @@ export default class FileManagementComponent implements OnInit {
           const url = window.URL.createObjectURL(blob);
           const a = document.createElement("a");
           a.href = url;
-          a.download = file.originalFileName;
+          a.download = file.fileName;
           document.body.appendChild(a);
           a.click();
           window.URL.revokeObjectURL(url);
@@ -308,7 +310,7 @@ export default class FileManagementComponent implements OnInit {
       // Note: This URL should match your API endpoint structure
       // You may need to adjust based on your BASE_URL configuration
       // For now, using a relative path that should work with the download endpoint
-      return `/api/File/${file.id}/download`;
+      return `${this.baseURL}/${file.id}/download`;
     }
     return '';
   }
